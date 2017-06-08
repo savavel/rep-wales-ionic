@@ -136,6 +136,17 @@ angular.module('starter', ['ionic', 'satellizer', 'starter.controllers', 'starte
 	  data: {requiredLogin: true}
       }
     }
+  })
+
+  .state('tab.cart', {
+    url: '/cart',
+    views: {
+      'tab-cart': {
+        templateUrl: 'templates/tab-cart.html',
+        controller: 'CartCtrl',
+        data: { requiredLogin: true }
+      }
+    }
   });
 
   // if none of the above states are matched, use this as the fallback

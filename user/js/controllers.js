@@ -181,62 +181,112 @@ angular.module('starter.controllers', [])
   //
   //$scope.$on('$ionicView.enter', function(e) {
   //});
+
 	$scope.data = {};
+
 	/*for(var key in walletSettings.clientData) {
 		console.log(walletSettings.clientData[key][3]);
 		VenuesService.getAssets(walletSettings.clientData[key][3])
 	}*/
-	if($auth.getToken() != null && walletSettings.initialized == false)
-        {
-                console.log('tab venue auth');
-                $state.go('login');
-        }
+
+	if ($auth.getToken() != null && walletSettings.initialized == false) {
+    console.log('tab venue auth');
+    $state.go('login');
+  }
 	
 	$scope.dataModel = {
-	    state: "loading",
-	    assets: [],
-	    clients: []
+    state: "loading",
+    assets: [],
+    clients: []
 	};
+
 	$ionicModal.fromTemplateUrl('templates/venue-modal.html', {
-      		scope: $scope,
-      		animation: 'slide-in-up'
-   		}).then(function(modal) {
-      		$scope.modal = modal;
-   	});
+    scope: $scope,
+    animation: 'slide-in-up'
+ 	}).then(function(modal) {
+    $scope.modal = modal;
+ 	});
+
 	$scope.dataModel.clients = walletSettings.clientData;
 	$scope.dataModel.clientAssets = walletSettings.clientAssetData;
 	$scope.dataModel.state = "loaded";
+
+  // Whenever the user clicks on a venue, update $scope.info with that venue's 
+  // info - name, lastname, mnemonic, and path.
 	$scope.openModal = function(venue) {
-		$scope.info = {}
-	      	$scope.info.venueName = venue[0];
-		$scope.info.venueLastName = venue[1];
-		$scope.info.venueMnemonic = venue[2];
-		$scope.info.venuePath = venue[3];
+		$scope.info = {
+      venueName: venue[0],
+      venueLastName: venue[1],
+      venueMnemonic: venue[2],
+      venuePath: venue[3],
+    };
 		$scope.modal.show();
-	   };
+	};
 		
-	   $scope.closeModal = function() {
-	      $scope.modal.hide();
-	   };
+  $scope.closeModal = function() {
+    $scope.modal.hide();
+  };
+
 	$scope.$on('$destroy', function() {
-      $scope.modal.remove();
-   });
-	$scope.$on('modal.hidden', function() {
-      // Execute action
-      });
-      $scope.$on('modal.removed', function() {
-      // Execute action
-      });
+    $scope.modal.remove();
+  });
+
+	$scope.$on('modal.hidden', function() {});
+
+  $scope.$on('modal.removed', function() {});
+
 	$scope.buyAsset = function(clientMnemonic, asset) {
 		
-		TransactService.sendTransaction(clientMnemonic, asset.asset.replace("/asset/p2pkh/","").replace("/",""), '1').success(function(data) {
+		TransactService
+      .sendTransaction(clientMnemonic, asset.asset.replace("/asset/p2pkh/","").replace("/",""), '1')
+      .success(function(data) {
+
 			var alertPopup = $ionicPopup.alert({
-			title: 'Transaction success!',
-			template: 'Success!'
+			  title: 'Transaction success!',
+			  template: 'Success!'
 			});
+
 			$window.location.reload();
 		});
 	}
+
+  // Increment the given asset's number within the user's shopping cart, 
+  // as stored in $window.localStorage.
+  $scope.addToCart = function(venueInfo, asset) {
+
+    var cart = JSON.parse($window.localStorage.getItem('cart'));
+    var item = _(cart).find(function(items) {
+      return item.asset.$$hashKey == asset.$$hashKey;
+    });
+
+    // Bump up our count and update localStorage.
+    var serializedAsset = JSON.stringify({
+      asset: asset,
+      assetCount: ++assetCount
+    });
+
+    $window.localStorage.setItem(asset.$$hashKey, serializedAsset);
+  }
+
+  // Gets the number of items the current user has, for this asset, in their cart.
+  $scope.getCartCount = function(asset) {
+
+    // $window.localStorage is a key-value store. We're using 
+    // asset.$$hashKey as a key to reference our assets.
+    // $$hashKey is in the format "object:[int]", e.g. 'object:94'.
+    // We're using that to store asset objects, plus their cart count.
+    // If the user hasn't clicked 'Add To Cart', then getItem(hashKey)
+    // will return null; use the || operator to ensure we use 0 instead.
+    var cart = JSON.parse($window.localStorage.getItem('cart'));
+    //var item = 
+
+    if (asset != null)
+      return JSON.parse(asset).assetCount;
+    else
+      return 0;
+
+  }
+
   /*$scope.chats = Chats.all();
   $scope.remove = function(chat) {
     Chats.remove(chat);
@@ -255,4 +305,8 @@ angular.module('starter.controllers', [])
   $scope.settings = {
     enableFriends: true
   };
+})
+
+.controller('CartCtrl', function($scope) {
+
 });
