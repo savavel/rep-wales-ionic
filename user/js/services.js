@@ -367,6 +367,83 @@ angular.module('starter.services', [])
 	}
     }
 })
+
+// Mess around with $window.localStorage.getItem('cart').
+.service('CartService', function($window, $http) {
+
+    return {
+
+        // Increment the given asset's number within the user's shopping cart, 
+        // as stored in $window.localStorage. It's stored as:
+        // localStorage.getItem('cart'),
+        // and 'cart' is in the format: 
+        // [{ asset: (asset object), assetCount: 3 }, {..}, ..]
+        addToCart: function(asset) {
+
+            // Grab 'cart', or if this is the first time the user's loaded the page
+            // and hasn't initialized 'cart', grab an empty array.
+            var cart = JSON.parse($window.localStorage.getItem('cart')) || [];
+
+            // Get the position within 'cart' of the asset we're adding.
+            var itemIndex = _(cart).findIndex(function(item) {
+                return item.asset.$$hashKey == asset.$$hashKey;
+            });
+
+            // The item's not present in 'cart'? Add it. 
+            if (itemIndex == -1) {
+                cart.push({
+                    asset: asset,
+                    assetCount: 1
+                });
+
+            // It's present? Bump up its count.
+            } else {
+                cart[itemIndex].assetCount++;
+            }
+
+            // Great, done. Update localStorage.
+            $window.localStorage.setItem('cart', JSON.stringify(cart));
+        },
+
+        // Gets the number of items the current user has, for this asset, in their cart.
+        getCartCount: function(asset) {
+
+            var serialized_cart = $window.localStorage.getItem('cart');
+         
+            if (serialized_cart != null) {
+                var cart = JSON.parse(serialized_cart);
+
+                // Get the position within 'cart' of the asset we're adding.
+                var itemIndex = _(cart).findIndex(function(item) {
+                    return item.asset.$$hashKey == asset.$$hashKey;
+                });
+
+                if (itemIndex == -1)
+                    return 0;
+                else
+                    return cart[itemIndex].assetCount;
+
+            } else {
+                return 0;
+            }
+        },
+
+        buyAll: function() {
+            var serialized_cart = $window.localStorage.getItem('cart');
+
+            $http({
+                method : "POST",
+                headers : { "Content-Type":"application/json" },
+                url : "[a URL to buy all thingies at]",
+                data: { 'cart': serialized_cart },
+
+            }).then(function(response) {
+                // Thingies happen
+            });
+        },
+    };
+
+});
 /*.factory('Chats', function() {
   // Might use a resource here that returns a JSON array
 

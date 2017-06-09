@@ -173,7 +173,7 @@ angular.module('starter.controllers', [])
       });
 })
 
-.controller('VenuesCtrl', function($scope, $state, $window, $auth, $ionicPopup, walletSettings, VenuesService, $ionicModal, TransactService) {
+.controller('VenuesCtrl', function($scope, $state, $window, $auth, $ionicPopup, walletSettings, VenuesService, $ionicModal, TransactService, CartService) {
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
   // To listen for when this page is active (for example, to refresh data),
@@ -250,62 +250,15 @@ angular.module('starter.controllers', [])
 		});
 	}
 
-
-  // Increment the given asset's number within the user's shopping cart, 
-  // as stored in $window.localStorage. It's stored as:
-  // localStorage.getItem('cart'),
-  // and 'cart' is in the format: 
-  // [{ asset: (asset object), assetCount: 3 }, {..}, ..]
   $scope.addToCart = function(asset) {
-
-    // Grab 'cart', or if this is the first time the user's loaded the page
-    // and hasn't initialized 'cart', grab an empty array.
-    var cart = JSON.parse($window.localStorage.getItem('cart')) || [];
-
-    // Get the position within 'cart' of the asset we're adding.
-    var itemIndex = _(cart).findIndex(function(item) {
-      return item.asset.$$hashKey == asset.$$hashKey;
-    });
-
-    // The item's not present in 'cart'? Add it. 
-    if (itemIndex == -1) {
-      cart.push({
-        asset: asset,
-        assetCount: 1
-      });
-
-    // It's present? Bump up its count.
-    } else {
-      cart[itemIndex].assetCount++;
-    }
-
-    // Great, done. Update localStorage.
-    $window.localStorage.setItem('cart', JSON.stringify(cart));
+    CartService.addToCart(asset);
   }
 
 
-  // Gets the number of items the current user has, for this asset, in their cart.
   $scope.getCartCount = function(asset) {
-    
-    var serialized_cart = $window.localStorage.getItem('cart');
- 
-    if (serialized_cart != null) {
-      var cart = JSON.parse(serialized_cart);
-
-      // Get the position within 'cart' of the asset we're adding.
-      var itemIndex = _(cart).findIndex(function(item) {
-        return item.asset.$$hashKey == asset.$$hashKey;
-      });
-
-      if (itemIndex == -1)
-        return 0;
-      else
-        return cart[itemIndex].assetCount;
-    }
-    else
-      return 0;
-
+    return CartService.getCartCount(asset);
   }
+
 
   /*$scope.chats = Chats.all();
   $scope.remove = function(chat) {
@@ -327,6 +280,33 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('CartCtrl', function($scope) {
+.controller('CartCtrl', function($scope, $state, $auth, $window, walletSettings, CartService) {
+
+  // First, do our auth shenanigans. The user isn't allowed here? Cast 'em out to
+  // the Great Beyond (i.e. the login page).
+  if ($auth.getToken() != null && walletSettings.initialized == false) {
+    $state.go('login');
+  }
+
+  // Begin our $scope fiddly-about-y-ness.
+  $scope.dataModel = {
+    state: 'loading',
+    cart: []
+  };
+
+  // Yoink our shopping cart from localStorage (if it exists) and whack it upon 
+  // $scope.datamodel.cart.
+  var serializedCart = $window.localStorage.getItem('cart');
+  $scope.dataModel.cart = serializedCart != null ? JSON.parse(serializedCart) : [];
+
+  $scope.dataModel.clients = walletSettings.clientData;
+  $scope.dataModel.clientAssets = walletSettings.clientAssetData;
+
+  // Conclude our $scope fiddly-about-y-ness.
+  $scope.dataModel.state = 'loaded';
+
+  $scope.buyAll = function() {
+    CartService.buyAll();
+  }
 
 });

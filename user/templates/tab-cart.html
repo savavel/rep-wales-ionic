@@ -1,8 +1,19 @@
 <ion-view view-title="Cart">
-  <ion-content>
-    <ion-list>
+  <ion-content class="padding">
 
+    <h2>Your shopping cart</h2>
 
+    <ion-list class="list">
+      <ion-item class="item item-thumbnail-left" ng-repeat="item in dataModel.cart" ng-show="dataModel.state == 'loaded'">
+
+        <img src="{{item.asset.iconUrl}}" />
+        <h3>{{item.asset.name}}</h3>
+        <h3>£{{item.asset.price}}</h3>
+        <h3>Quantity in stock: {{item.asset.balance}}</h3>
+        <h3>Quantity in cart: {{item.assetCount}}</h3>
+      </ion-item>
     </ion-list>
+
+    <button class="button" ng-click="buyAll()" ng-show="dataModel.cart.length > 0">Buy All</button>
   </ion-content>
 </ion-view>

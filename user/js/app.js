@@ -133,7 +133,7 @@ angular.module('starter', ['ionic', 'satellizer', 'starter.controllers', 'starte
       'tab-account': {
         templateUrl: 'templates/tab-account.html',
         controller: 'AccountCtrl',
-	  data: {requiredLogin: true}
+	      data: {requiredLogin: true}
       }
     }
   })
