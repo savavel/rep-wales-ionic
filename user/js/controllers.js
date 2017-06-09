@@ -232,8 +232,8 @@ angular.module('starter.controllers', [])
   });
 
 	$scope.$on('modal.hidden', function() {});
-
   $scope.$on('modal.removed', function() {});
+
 
 	$scope.buyAsset = function(clientMnemonic, asset) {
 		
@@ -250,38 +250,58 @@ angular.module('starter.controllers', [])
 		});
 	}
 
-  // Increment the given asset's number within the user's shopping cart, 
-  // as stored in $window.localStorage.
-  $scope.addToCart = function(venueInfo, asset) {
 
-    var cart = JSON.parse($window.localStorage.getItem('cart'));
-    var item = _(cart).find(function(items) {
+  // Increment the given asset's number within the user's shopping cart, 
+  // as stored in $window.localStorage. It's stored as:
+  // localStorage.getItem('cart'),
+  // and 'cart' is in the format: 
+  // [{ asset: (asset object), assetCount: 3 }, {..}, ..]
+  $scope.addToCart = function(asset) {
+
+    // Grab 'cart', or if this is the first time the user's loaded the page
+    // and hasn't initialized 'cart', grab an empty array.
+    var cart = JSON.parse($window.localStorage.getItem('cart')) || [];
+
+    // Get the position within 'cart' of the asset we're adding.
+    var itemIndex = _(cart).findIndex(function(item) {
       return item.asset.$$hashKey == asset.$$hashKey;
     });
 
-    // Bump up our count and update localStorage.
-    var serializedAsset = JSON.stringify({
-      asset: asset,
-      assetCount: ++assetCount
-    });
+    // The item's not present in 'cart'? Add it. 
+    if (itemIndex == -1) {
+      cart.push({
+        asset: asset,
+        assetCount: 1
+      });
 
-    $window.localStorage.setItem(asset.$$hashKey, serializedAsset);
+    // It's present? Bump up its count.
+    } else {
+      cart[itemIndex].assetCount++;
+    }
+
+    // Great, done. Update localStorage.
+    $window.localStorage.setItem('cart', JSON.stringify(cart));
   }
+
 
   // Gets the number of items the current user has, for this asset, in their cart.
   $scope.getCartCount = function(asset) {
+    
+    var serialized_cart = $window.localStorage.getItem('cart');
+ 
+    if (serialized_cart != null) {
+      var cart = JSON.parse(serialized_cart);
 
-    // $window.localStorage is a key-value store. We're using 
-    // asset.$$hashKey as a key to reference our assets.
-    // $$hashKey is in the format "object:[int]", e.g. 'object:94'.
-    // We're using that to store asset objects, plus their cart count.
-    // If the user hasn't clicked 'Add To Cart', then getItem(hashKey)
-    // will return null; use the || operator to ensure we use 0 instead.
-    var cart = JSON.parse($window.localStorage.getItem('cart'));
-    //var item = 
+      // Get the position within 'cart' of the asset we're adding.
+      var itemIndex = _(cart).findIndex(function(item) {
+        return item.asset.$$hashKey == asset.$$hashKey;
+      });
 
-    if (asset != null)
-      return JSON.parse(asset).assetCount;
+      if (itemIndex == -1)
+        return 0;
+      else
+        return cart[itemIndex].assetCount;
+    }
     else
       return 0;
 

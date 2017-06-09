@@ -11,10 +11,10 @@
         <h3>{{asset.name}}</h3>
         <h3>£{{asset.price}}</h3>
 
-  			<button class="button" ng-click="buyAsset(info.venueMnemonic, asset)" ng-show="asset.balance > 0">Buy Now</button>
+  			<button class="button" ng-click="buyAsset(asset)" ng-show="asset.balance > 0">Buy Now</button>
         <h3 ng-show="asset.balance <= 0" color="red">Out of stock</h3>
 
-        <button class="button" ng-click="addToCart(info, asset)" ng-show="(asset.balance - getCartCount(asset)) > 0">Add to cart</button>
+        <button class="button" ng-click="addToCart(asset)" ng-show="(asset.balance - getCartCount(asset)) > 0">Add to cart</button>
         <h3 ng-show="getCartCount(asset) > 0" color="red">{{getCartCount(asset)}} in cart</h3>
         <h3 ng-show="((asset.balance - getCartCount(asset)) <= 0) && getCartCount(asset) > 0" color="red">All available items already in cart</h3>
 
