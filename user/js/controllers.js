@@ -297,6 +297,7 @@ angular.module('starter.controllers', [])
   // Yoink our shopping cart from localStorage (if it exists) and whack it upon 
   // $scope.datamodel.cart.
   var serializedCart = $window.localStorage.getItem('cart');
+  console.log('serializedCart', serializedCart)
   $scope.dataModel.cart = serializedCart != null ? JSON.parse(serializedCart) : [];
 
   $scope.dataModel.clients = walletSettings.clientData;

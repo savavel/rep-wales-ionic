@@ -139,6 +139,7 @@ angular.module('starter', ['ionic', 'satellizer', 'starter.controllers', 'starte
   })
 
   .state('tab.cart', {
+    cache: false,
     url: '/cart',
     views: {
       'tab-cart': {

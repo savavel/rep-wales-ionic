@@ -429,13 +429,13 @@ angular.module('starter.services', [])
         },
 
         buyAll: function() {
-            var serialized_cart = $window.localStorage.getItem('cart');
+            var serializedCart = $window.localStorage.getItem('cart');
 
             $http({
                 method : "POST",
                 headers : { "Content-Type":"application/json" },
                 url : "[a URL to buy all thingies at]",
-                data: { 'cart': serialized_cart },
+                data: { cart: serializedCart },
 
             }).then(function(response) {
                 // Thingies happen
